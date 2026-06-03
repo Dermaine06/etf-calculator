@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ETF Calculator Pro</title>
+
+<style>
+
+:root{
+    --green:#00c853;
+    --dark:#121212;
+    --card:#1e1e1e;
+    --text:#ffffff;
+}
+
+body{
+    background:var(--dark);
+    color:var(--text);
+    font-family:Segoe UI, Arial, sans-serif;
+    padding:30px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+}
+
+.card{
+    background:var(--card);
+    padding:25px;
+    border-radius:15px;
+    border:1px solid #333;
+    box-shadow:0 0 15px rgba(0,0,0,.4);
+}
+
+h1{
+    text-align:center;
+    color:var(--green);
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:5px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.calculate{
+    background:var(--green);
+    color:black;
+}
+
+.copy{
+    background:black;
+    color:var(--green);
+    border:1px solid var(--green);
+}
+
+.result-box{
+    margin-top:25px;
+    background:#181818;
+    padding:20px;
+    border-radius:10px;
+}
+
+.result-title{
+    color:var(--green);
+    margin-bottom:10px;
+}
+
+.etf{
+    font-size:28px;
+    font-weight:bold;
+    color:var(--green);
+}
+
+.breakdown{
+    white-space:pre-line;
+    line-height:1.8;
+}
+
+.success{
+    margin-top:10px;
+    color:var(--green);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>ETF Calculator Pro</h1>
+
+<label>Monthly Cost (£)</label>
+<input type="number" id="monthlyCost" step="0.01">
+
+<label>Last Bill Paid Date</label>
+<input type="date" id="lastBillDate">
+
+<label>Contract End Date</label>
+<input type="date" id="contractEndDate">
+
+<button class="calculate" onclick="calculateETF()">
+Calculate ETF
+</button>
+
+<div id="results" style="display:none;">
+
+<div class="result-box">
+
+<div class="result-title">
+ETF Summary
+</div>
+
+<div id="summary"></div>
+
+<br>
+
+<div class="etf" id="etfAmount"></div>
+
+<button class="copy" onclick="copyETF()">
+Copy ETF
+</button>
+
+</div>
+
+<div class="result-box">
+
+<div class="result-title">
+Breakdown
+</div>
+
+<div class="breakdown" id="breakdown"></div>
+
+<button class="copy" onclick="copyBreakdown()">
+Copy Breakdown
+</button>
+
+</div>
+
+<div class="success" id="copiedMessage"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let etfText = "";
+let breakdownText = "";
+
+function calculateETF(){
+
+    const monthlyCost =
+        parseFloat(document.getElementById("monthlyCost").value);
+
+    const lastBillDate =
+        new Date(document.getElementById("lastBillDate").value);
+
+    const contractEndDate =
+        new Date(document.getElementById("contractEndDate").value);
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    const remainingDays =
+        Math.ceil(
+            (contractEndDate - lastBillDate)
+            / msPerDay
+        );
+
+    const costPerDay =
+        monthlyCost / 30;
+
+    const etf =
+        costPerDay * remainingDays;
+
+    const fullMonths =
+        Math.floor(remainingDays / 30);
+
+    const extraDays =
+        remainingDays % 30;
+
+    const fullMonthCost =
+        fullMonths * monthlyCost;
+
+    const extraDayCost =
+        extraDays * costPerDay;
+
+    etfText =
+        `£${etf.toFixed(2)}`;
+
+    breakdownText =
+`Monthly Cost: £${monthlyCost.toFixed(2)}
+
+Remaining Days: ${remainingDays}
+
+${fullMonths} Full Months = £${fullMonthCost.toFixed(2)}
+
+${extraDays} Remaining Days = £${extraDayCost.toFixed(2)}
+
+Total ETF = £${etf.toFixed(2)}`;
+
+    document.getElementById("summary").innerHTML =
+`
+Monthly Cost: £${monthlyCost.toFixed(2)}<br>
+Cost Per Day: £${costPerDay.toFixed(4)}<br>
+Remaining Days: ${remainingDays}
+`;
+
+    document.getElementById("etfAmount").innerHTML =
+        `£${etf.toFixed(2)}`;
+
+    document.getElementById("breakdown").innerHTML =
+`
+${fullMonths} Full Months = £${fullMonthCost.toFixed(2)}
+
+${extraDays} Remaining Days = £${extraDayCost.toFixed(2)}
+
+--------------------------------
+
+Total ETF = £${etf.toFixed(2)}
+`;
+
+    document.getElementById("results").style.display =
+        "block";
+
+}
+
+function copyETF(){
+
+    navigator.clipboard.writeText(etfText);
+
+    document.getElementById("copiedMessage").innerHTML =
+        "ETF copied to clipboard";
+}
+
+function copyBreakdown(){
+
+    navigator.clipboard.writeText(breakdownText);
+
+    document.getElementById("copiedMessage").innerHTML =
+        "Breakdown copied to clipboard";
+}
+
+</script>
+
+</body>
+</html>
